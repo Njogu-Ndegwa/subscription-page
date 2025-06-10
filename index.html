@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WiFi Subscription Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 25%, #81ecec 50%, #74b9ff 75%, #a29bfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #2d3436;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header - Mobile Optimized */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00b894, #00cec9, #6c5ce7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: #636e72;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Instructions - Mobile Friendly */
+        .instructions {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .instructions h3 {
+            color: #00b894;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instructions ol {
+            list-style: none;
+            counter-reset: step;
+            margin: 0;
+            padding: 0;
+        }
+
+        .instructions li {
+            counter-increment: step;
+            margin-bottom: 8px;
+            padding-left: 30px;
+            position: relative;
+            color: #2d3436;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .instructions li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        /* Success Message - Mobile */
+        .success-message {
+            display: none;
+            background: #00b894;
+            color: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: 0 3px 15px rgba(0, 184, 148, 0.3);
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Plans Grid - Mobile First */
+        .plans-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px;
+        }
+
+        .plans-container::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .plans-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+
+        .plans-container::-webkit-scrollbar-thumb {
+            background: #00b894;
+            border-radius: 2px;
+        }
+
+        .plan-card {
+            background: white;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 0 0 auto;
+            width: 120px;
+            scroll-snap-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-card:active {
+            transform: scale(0.98);
+        }
+
+        .plan-card.selected {
+            border-color: #00b894;
+            background: linear-gradient(135deg, #e8fdf8, #e3f9f9);
+            box-shadow: 0 4px 20px rgba(0, 184, 148, 0.3);
+        }
+
+        .plan-duration {
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 1.1rem;
+            color: #e17055;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .plan-speed {
+            font-size: 0.75rem;
+            color: #636e72;
+        }
+
+        /* Form Sections - Mobile Optimized */
+        .form-section {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+            background: linear-gradient(45deg, #6c5ce7, #74b9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        .info-text {
+            text-align: center;
+            color: #636e72;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        /* Input Styles - Touch Friendly */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            background: #f8f9fa;
+            color: #2d3436;
+            font-size: 16px; /* Prevents zoom on iOS */
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00b894;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #b2bec3;
+        }
+
+        /* Buttons - Large Touch Targets */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 50px; /* Touch-friendly size */
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c5ce7, #74b9ff);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        /* Arrow icon */
+        .arrow-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Stats Grid - Mobile Layout */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 3px;
+        }
+
+        .stat-label {
+            color: #636e72;
+            font-size: 0.75rem;
+        }
+
+        /* Loading - Mobile */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid #dfe6e9;
+            border-top-color: #00b894;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Floating decorations */
+        .decoration {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .decoration-1 {
+            width: 120px;
+            height: 120px;
+            background: #00b894;
+            top: -60px;
+            left: -60px;
+        }
+
+        .decoration-2 {
+            width: 80px;
+            height: 80px;
+            background: #6c5ce7;
+            bottom: 100px;
+            right: -40px;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        /* Contact Section - Mobile */
+        .contact-section {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            border-radius: 20px;
+            margin-top: 25px;
+            box-shadow: 0 3px 15px rgba(253, 203, 110, 0.3);
+        }
+
+        .contact-title {
+            font-size: 0.9rem;
+            color: #2d3436;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .contact-number {
+            font-size: 1.5rem;
+            color: #2d3436;
+            font-weight: 700;
+        }
+
+        /* Extra small devices */
+        @media (max-width: 360px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .plan-card {
+                width: 100px;
+                padding: 15px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating decorations -->
+    <div class="decoration decoration-1"></div>
+    <div class="decoration decoration-2"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">SOKONI WIFI 🌟</h1>
+            <p class="subtitle">Fast & Affordable Internet for Everyone!</p>
+        </div>
+
+        <div class="instructions">
+            <h3>📱 How To Purchase:</h3>
+            <ol>
+                <li>Tap on your preferred package</li>
+                <li>Enter your phone number</li>
+                <li>Click "PAY NOW"</li>
+                <li>Enter your M-Pesa PIN & wait 30sec</li>
+            </ol>
+        </div>
+
+        <div id="successMessage" class="success-message">
+            <p>🎉 Success! Your WiFi is now active!</p>
+        </div>
+
+        <!-- Plans Section - Horizontal Scroll on Mobile -->
+        <div class="plans-container" id="plansContainer">
+            <!-- Plans will be dynamically inserted here -->
+        </div>
+
+        <!-- Purchase Form -->
+        <div class="form-section">
+            <h2 class="section-title">💳 Purchase Package</h2>
+            <div class="input-group">
+                <input type="tel" class="input-field" id="phoneNumber" placeholder="Phone number (07...)" pattern="[0-9]*" inputmode="numeric">
+            </div>
+            <button class="btn btn-primary" onclick="processPayment()">
+                <span>PAY NOW</span>
+                <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                </svg>
+            </button>
+            <div class="loading" id="paymentLoading">
+                <div class="spinner"></div>
+                <p>Processing payment...</p>
+            </div>
+        </div>
+
+        <!-- Reconnect Account -->
+        <div class="form-section">
+            <h2 class="section-title">🔄 Reconnect Account</h2>
+            <p class="info-text">Enter M-Pesa code from payment</p>
+            <div class="input-group">
+                <input type="text" class="input-field" id="mpesaCode" placeholder="M-Pesa Code">
+            </div>
+            <button class="btn btn-primary" onclick="reconnectAccount()">Reconnect</button>
+        </div>
+
+        <!-- Voucher Activation -->
+        <div class="form-section">
+            <h2 class="section-title">🎟️ Voucher Recharge</h2>
+            <p class="info-text">Have a voucher? Activate it here</p>
+            <div class="input-group">
+                <input type="text" class="input-field" id="voucherCode" placeholder="Voucher Code">
+            </div>
+            <button class="btn btn-secondary" onclick="activateVoucher()">Activate</button>
+        </div>
+
+        <!-- Login Section -->
+        <div class="form-section">
+            <h2 class="section-title">🔐 Member Login</h2>
+            <div class="input-group">
+                <input type="text" class="input-field" id="username" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <input type="password" class="input-field" id="password" placeholder="Password">
+            </div>
+            <button class="btn btn-secondary" onclick="login()">LOGIN</button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Happy Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Support</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">KSh 10</div>
+                <div class="stat-label">From Only</div>
+            </div>
+        </div>
+
+        <div class="contact-section">
+            <p class="contact-title">📞 CUSTOMER SUPPORT</p>
+            <p class="contact-number">0742 260 893</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample plans data
+        const plans = [
+            { duration: '1 Hour', price: 'KSH 10', speed: '5 Mbps', emoji: '⏰' },
+            { duration: '4 Hours', price: 'KSH 20', speed: '5 Mbps', emoji: '⏳' },
+            { duration: '24 Hours', price: 'KSH 30', speed: '5 Mbps', emoji: '📅' },
+            { duration: '1 Week', price: 'KSH 150', speed: '10 Mbps', emoji: '📆' },
+            { duration: '1 Month', price: 'KSH 500', speed: '10 Mbps', emoji: '🗓️' }
+        ];
+
+        let selectedPlan = null;
+
+        // Initialize plans
+        function initializePlans() {
+            const container = document.getElementById('plansContainer');
+            container.innerHTML = '';
+            
+            plans.forEach((plan, index) => {
+                const planCard = document.createElement('div');
+                planCard.className = 'plan-card';
+                planCard.innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 5px;">${plan.emoji}</div>
+                    <div class="plan-duration">${plan.duration}</div>
+                    <div class="plan-price">${plan.price}</div>
+                    <div class="plan-speed">${plan.speed}</div>
+                `;
+                planCard.onclick = () => selectPlan(index);
+                container.appendChild(planCard);
+            });
+        }
+
+        function selectPlan(index) {
+            // Remove previous selection
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selection to clicked plan
+            const selectedCard = document.querySelectorAll('.plan-card')[index];
+            selectedCard.classList.add('selected');
+            selectedPlan = plans[index];
+            
+            // Scroll selected card into view
+            selectedCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+
+        function showSuccessMessage() {
+            const message = document.getElementById('successMessage');
+            message.classList.add('show');
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 4000);
+        }
+
+        function processPayment() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            
+            if (!phoneNumber) {
+                alert('Please enter your phone number');
+                return;
+            }
+            
+            if (!selectedPlan) {
+                alert('Please select a plan first');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('paymentLoading').classList.add('active');
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                document.getElementById('paymentLoading').classList.remove('active');
+                showSuccessMessage();
+                document.getElementById('phoneNumber').value = '';
+                
+                // Deselect plan
+                document.querySelectorAll('.plan-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                selectedPlan = null;
+            }, 3000);
+        }
+
+        function reconnectAccount() {
+            const mpesaCode = document.getElementById('mpesaCode').value;
+            
+            if (!mpesaCode) {
+                alert('Please enter your M-Pesa code');
+                return;
+            }
+            
+            // Simulate reconnection
+            setTimeout(() => {
+                showSuccessMessage();
+                document.getElementById('mpesaCode').value = '';
+            }, 1000);
+        }
+
+        function activateVoucher() {
+            const voucherCode = document.getElementById('voucherCode').value;
+            
+            if (!voucherCode) {
+                alert('Please enter your voucher code');
+                return;
+            }
+            
+            // Simulate voucher activation
+            setTimeout(() => {
+                showSuccessMessage();
+                document.getElementById('voucherCode').value = '';
+            }, 1000);
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            // Simulate login
+            setTimeout(() => {
+                showSuccessMessage();
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            }, 1000);
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initializePlans);
+
+        // Add dynamic plans functionality
+        function addPlan(duration, price, speed, emoji) {
+            plans.push({ duration, price, speed, emoji });
+            initializePlans();
+        }
+    </script>
+</body>
+</html>
