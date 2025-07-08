@@ -135,6 +135,24 @@
             animation: slideDown 0.3s ease-out;
         }
 
+        /* Error Message */
+        .error-message {
+            display: none;
+            background: #e74c3c;
+            color: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            box-shadow: 0 3px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
         @keyframes slideDown {
             from {
                 transform: translateY(-20px);
@@ -146,43 +164,46 @@
             }
         }
 
-        /* Plans Grid - Mobile First */
+        /* Plans Grid - No Horizontal Scroll */
         .plans-container {
-            display: flex;
+            display: grid;
             gap: 10px;
             margin-bottom: 25px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         }
 
-        .plans-container::-webkit-scrollbar {
-            height: 4px;
+        /* Responsive grid adjustments */
+        @media (min-width: 320px) {
+            .plans-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        .plans-container::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 2px;
+        @media (min-width: 480px) {
+            .plans-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
-        .plans-container::-webkit-scrollbar-thumb {
-            background: #00b894;
-            border-radius: 2px;
+        @media (min-width: 768px) {
+            .plans-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
 
         .plan-card {
             background: white;
             border: 3px solid transparent;
             border-radius: 15px;
-            padding: 20px 15px;
+            padding: 15px 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            flex: 0 0 auto;
-            width: 120px;
-            scroll-snap-align: center;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .plan-card:active {
@@ -196,24 +217,24 @@
         }
 
         .plan-duration {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
             background: linear-gradient(45deg, #00b894, #00cec9);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-
-        .plan-price {
-            font-size: 1.1rem;
-            color: #e17055;
-            font-weight: 700;
             margin-bottom: 5px;
         }
 
+        .plan-price {
+            font-size: 0.9rem;
+            color: #e17055;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
         .plan-speed {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #636e72;
         }
 
@@ -292,6 +313,11 @@
             transform: scale(0.98);
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, #00b894, #00cec9);
             color: white;
@@ -302,6 +328,57 @@
             background: linear-gradient(135deg, #6c5ce7, #74b9ff);
             color: white;
             box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        /* Selected Plan Display */
+        .selected-plan-display {
+            background: linear-gradient(135deg, #e8fdf8, #e3f9f9);
+            border: 2px solid #00b894;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .selected-plan-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selected-plan-details {
+            flex: 1;
+        }
+
+        .selected-plan-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #00b894;
+            margin-bottom: 3px;
+        }
+
+        .selected-plan-specs {
+            font-size: 0.8rem;
+            color: #636e72;
+        }
+
+        .selected-plan-price {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #e17055;
+        }
+
+        .change-plan-btn {
+            background: none;
+            border: 1px solid #00b894;
+            color: #00b894;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         /* Arrow icon */
@@ -427,8 +504,16 @@
             }
             
             .plan-card {
-                width: 100px;
-                padding: 15px 10px;
+                padding: 12px 8px;
+                min-height: 100px;
+            }
+            
+            .plan-duration {
+                font-size: 0.9rem;
+            }
+            
+            .plan-price {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -458,18 +543,25 @@
             <p>🎉 Success! Your WiFi is now active!</p>
         </div>
 
-        <!-- Plans Section - Horizontal Scroll on Mobile -->
+        <div id="errorMessage" class="error-message">
+            <p>❌ <span id="errorText">Something went wrong. Please try again.</span></p>
+        </div>
+
+        <!-- Plans Section - Grid Layout -->
         <div class="plans-container" id="plansContainer">
             <!-- Plans will be dynamically inserted here -->
         </div>
 
-        <!-- Purchase Form -->
-        <div class="form-section">
-            <h2 class="section-title">💳 Purchase Package</h2>
+        <!-- Purchase Form - Shows after plan selection -->
+        <div class="form-section" id="purchaseForm" style="display: none;">
+            <h2 class="section-title">💳 Complete Purchase</h2>
+            <div id="selectedPlanDisplay" class="selected-plan-display">
+                <!-- Selected plan details will appear here -->
+            </div>
             <div class="input-group">
                 <input type="tel" class="input-field" id="phoneNumber" placeholder="Phone number (07...)" pattern="[0-9]*" inputmode="numeric">
             </div>
-            <button class="btn btn-primary" onclick="processPayment()">
+            <button class="btn btn-primary" onclick="processPayment()" id="payButton">
                 <span>PAY NOW</span>
                 <svg class="arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
@@ -540,16 +632,34 @@
     </div>
 
     <script>
-        // Sample plans data
+        // GraphQL endpoint
+        const GRAPHQL_ENDPOINT = 'http://34.228.22.140:8010/graphql';
+        
+        // Sample plans data - you can fetch this from your backend
         const plans = [
-            { duration: '1 Hour', price: 'KSH 10', speed: '5 Mbps', emoji: '⏰' },
-            { duration: '4 Hours', price: 'KSH 20', speed: '5 Mbps', emoji: '⏳' },
-            { duration: '24 Hours', price: 'KSH 30', speed: '5 Mbps', emoji: '📅' },
-            { duration: '1 Week', price: 'KSH 150', speed: '10 Mbps', emoji: '📆' },
-            { duration: '1 Month', price: 'KSH 500', speed: '10 Mbps', emoji: '🗓️' }
+            { id: 1, duration: '1 Hour', price: 'KSH 10', speed: '5 Mbps', emoji: '⏰' },
+            { id: 2, duration: '4 Hours', price: 'KSH 20', speed: '5 Mbps', emoji: '⏳' },
+            { id: 3, duration: '24 Hours', price: 'KSH 30', speed: '5 Mbps', emoji: '📅' },
+            { id: 4, duration: '1 Week', price: 'KSH 150', speed: '10 Mbps', emoji: '📆' },
+            { id: 5, duration: '1 Month', price: 'KSH 500', speed: '10 Mbps', emoji: '🗓️' },
+            { id: 6, duration: '3 Months', price: 'KSH 1200', speed: '15 Mbps', emoji: '📋' }
         ];
 
         let selectedPlan = null;
+        let userMacAddress = null;
+
+        // Get MAC address from URL parameters
+        function getMacAddressFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('mac') || urlParams.get('macAddress') || 'unknown';
+        }
+
+        // Initialize the page
+        function initializePage() {
+            userMacAddress = getMacAddressFromUrl();
+            console.log('MAC Address:', userMacAddress);
+            initializePlans();
+        }
 
         // Initialize plans
         function initializePlans() {
@@ -560,7 +670,7 @@
                 const planCard = document.createElement('div');
                 planCard.className = 'plan-card';
                 planCard.innerHTML = `
-                    <div style="font-size: 2rem; margin-bottom: 5px;">${plan.emoji}</div>
+                    <div style="font-size: 1.5rem; margin-bottom: 5px;">${plan.emoji}</div>
                     <div class="plan-duration">${plan.duration}</div>
                     <div class="plan-price">${plan.price}</div>
                     <div class="plan-speed">${plan.speed}</div>
@@ -581,103 +691,232 @@
             selectedCard.classList.add('selected');
             selectedPlan = plans[index];
             
-            // Scroll selected card into view
-            selectedCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            // Show purchase form with selected plan details
+            showPurchaseForm();
         }
 
-        function showSuccessMessage() {
-            const message = document.getElementById('successMessage');
-            message.classList.add('show');
+        function showPurchaseForm() {
+            const purchaseForm = document.getElementById('purchaseForm');
+            const selectedPlanDisplay = document.getElementById('selectedPlanDisplay');
+            
+            // Create selected plan display
+            selectedPlanDisplay.innerHTML = `
+                <div class="selected-plan-info">
+                    <div class="selected-plan-details">
+                        <div class="selected-plan-name">${selectedPlan.emoji} ${selectedPlan.duration}</div>
+                        <div class="selected-plan-specs">${selectedPlan.speed} Speed</div>
+                    </div>
+                    <div>
+                        <div class="selected-plan-price">${selectedPlan.price}</div>
+                        <button class="change-plan-btn" onclick="changePlan()">Change</button>
+                    </div>
+                </div>
+            `;
+            
+            // Show the form with animation
+            purchaseForm.style.display = 'block';
+            purchaseForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Focus on phone number input
             setTimeout(() => {
-                message.classList.remove('show');
+                document.getElementById('phoneNumber').focus();
+            }, 300);
+        }
+
+        function changePlan() {
+            // Hide purchase form
+            document.getElementById('purchaseForm').style.display = 'none';
+            
+            // Remove all plan selections
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            selectedPlan = null;
+            
+            // Clear phone number
+            document.getElementById('phoneNumber').value = '';
+            
+            // Scroll back to plans
+            document.getElementById('plansContainer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function showSuccessMessage(message = '🎉 Success! Your WiFi is now active!') {
+            const messageEl = document.getElementById('successMessage');
+            messageEl.innerHTML = `<p>${message}</p>`;
+            messageEl.classList.add('show');
+            setTimeout(() => {
+                messageEl.classList.remove('show');
             }, 4000);
         }
 
-        function processPayment() {
-            const phoneNumber = document.getElementById('phoneNumber').value;
+        function showErrorMessage(message = 'Something went wrong. Please try again.') {
+            const errorEl = document.getElementById('errorMessage');
+            const errorTextEl = document.getElementById('errorText');
+            errorTextEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+            }, 5000);
+        }
+
+        // GraphQL mutation function
+        async function callGraphQL(query, variables) {
+            try {
+                const response = await fetch(GRAPHQL_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        variables: variables
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.errors) {
+                    throw new Error(result.errors[0].message);
+                }
+                
+                return result.data;
+            } catch (error) {
+                console.error('GraphQL Error:', error);
+                throw error;
+            }
+        }
+
+        async function processPayment() {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
             
+            // Validation
             if (!phoneNumber) {
-                alert('Please enter your phone number');
+                showErrorMessage('Please enter your phone number');
                 return;
             }
             
             if (!selectedPlan) {
-                alert('Please select a plan first');
+                showErrorMessage('Please select a plan first');
+                return;
+            }
+
+            if (!userMacAddress || userMacAddress === 'unknown') {
+                showErrorMessage('Unable to detect device. Please contact support.');
                 return;
             }
             
             // Show loading
-            document.getElementById('paymentLoading').classList.add('active');
+            const payButton = document.getElementById('payButton');
+            const loadingEl = document.getElementById('paymentLoading');
             
-            // Simulate payment processing
-            setTimeout(() => {
-                document.getElementById('paymentLoading').classList.remove('active');
-                showSuccessMessage();
+            payButton.disabled = true;
+            loadingEl.classList.add('active');
+            
+            // GraphQL mutation
+            const mutation = `
+                mutation RegisterHotspotAndPay(
+                    $macAddress: String!
+                    $name: String!
+                    $phone: String!
+                    $planId: Int!
+                    $routerId: Int!
+                ) {
+                    registerHotspotAndPay(
+                        macAddress: $macAddress
+                        name: $name
+                        phone: $phone
+                        planId: $planId
+                        routerId: $routerId
+                    )
+                }
+            `;
+            
+            const variables = {
+                macAddress: userMacAddress,
+                name: `User_${phoneNumber}`, // Generate a name from phone number
+                phone: phoneNumber,
+                planId: selectedPlan.id,
+                routerId: 1 // You might want to get this from URL or make it configurable
+            };
+            
+            try {
+                const result = await callGraphQL(mutation, variables);
+                
+                // Success
+                loadingEl.classList.remove('active');
+                payButton.disabled = false;
+                
+                showSuccessMessage('🎉 Payment successful! Your WiFi is now active!');
+                
+                // Clear form
                 document.getElementById('phoneNumber').value = '';
+                document.getElementById('purchaseForm').style.display = 'none';
                 
                 // Deselect plan
                 document.querySelectorAll('.plan-card').forEach(card => {
                     card.classList.remove('selected');
                 });
                 selectedPlan = null;
-            }, 3000);
+                
+            } catch (error) {
+                // Error
+                loadingEl.classList.remove('active');
+                payButton.disabled = false;
+                
+                showErrorMessage(`Payment failed: ${error.message}`);
+            }
         }
 
         function reconnectAccount() {
-            const mpesaCode = document.getElementById('mpesaCode').value;
+            const mpesaCode = document.getElementById('mpesaCode').value.trim();
             
             if (!mpesaCode) {
-                alert('Please enter your M-Pesa code');
+                showErrorMessage('Please enter your M-Pesa code');
                 return;
             }
             
-            // Simulate reconnection
+            // Simulate reconnection - you can implement actual GraphQL call here
             setTimeout(() => {
-                showSuccessMessage();
+                showSuccessMessage('🔄 Account reconnected successfully!');
                 document.getElementById('mpesaCode').value = '';
             }, 1000);
         }
 
         function activateVoucher() {
-            const voucherCode = document.getElementById('voucherCode').value;
+            const voucherCode = document.getElementById('voucherCode').value.trim();
             
             if (!voucherCode) {
-                alert('Please enter your voucher code');
+                showErrorMessage('Please enter your voucher code');
                 return;
             }
             
-            // Simulate voucher activation
+            // Simulate voucher activation - you can implement actual GraphQL call here
             setTimeout(() => {
-                showSuccessMessage();
+                showSuccessMessage('🎟️ Voucher activated successfully!');
                 document.getElementById('voucherCode').value = '';
             }, 1000);
         }
 
         function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
             
             if (!username || !password) {
-                alert('Please enter both username and password');
+                showErrorMessage('Please enter both username and password');
                 return;
             }
             
-            // Simulate login
+            // Simulate login - you can implement actual GraphQL call here
             setTimeout(() => {
-                showSuccessMessage();
+                showSuccessMessage('🔐 Login successful!');
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
             }, 1000);
         }
 
         // Initialize on load
-        document.addEventListener('DOMContentLoaded', initializePlans);
-
-        // Add dynamic plans functionality
-        function addPlan(duration, price, speed, emoji) {
-            plans.push({ duration, price, speed, emoji });
-            initializePlans();
-        }
+        document.addEventListener('DOMContentLoaded', initializePage);
     </script>
 </body>
 </html>
